@@ -51,6 +51,7 @@
       "resources/**/*"
     ],
     "mac": {
+      "icon": "resources/icon.icns",
       "category": "public.app-category.developer-tools",
       "target": [
         "dmg",
@@ -59,12 +60,14 @@
       "darkModeSupport": true
     },
     "win": {
+      "icon": "resources/icon.ico",
       "target": [
         "nsis",
         "portable"
       ]
     },
     "linux": {
+      "icon": "resources/icon.png",
       "target": [
         "AppImage",
         "deb"

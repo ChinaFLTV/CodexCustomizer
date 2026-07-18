@@ -36,9 +36,15 @@ const isDev = !app.isPackaged
 
 let mainWindow: BrowserWindow | null = null
 
+/** Dev + packaged: resources/ sits next to out/ (packed into app.asar). */
+function resolveAppIcon(): string {
+  return join(__dirname, '../../resources/icon.png')
+}
+
 function createWindow(): void {
   const settings = getSettings()
   const { width, height, x, y } = settings.windowBounds
+  const icon = resolveAppIcon()
 
   mainWindow = new BrowserWindow({
     width,
@@ -49,6 +55,7 @@ function createWindow(): void {
     minHeight: 640,
     show: false,
     frame: false,
+    icon,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
     trafficLightPosition: { x: 16, y: 18 },
     backgroundColor: '#00000000',
@@ -63,6 +70,15 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  // macOS Dock icon (dev + packaged)
+  if (process.platform === 'darwin' && app.dock) {
+    try {
+      app.dock.setIcon(icon)
+    } catch {
+      // ignore missing icon during early setup
+    }
+  }
 
   bindMainWindow(mainWindow)
 
