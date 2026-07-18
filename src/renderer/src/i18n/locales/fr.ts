@@ -165,6 +165,10 @@ export default {
     codex2007: {
       name: 'Codex 2007',
       description: 'Chrome bleu ciel style QQ / Windows XP — nostalgie chat 2000s'
+    },
+    jujingyiSunsetBreeze: {
+      name: 'Ju Jingyi · Brise au coucher',
+      description: 'Côte dorée et robe flottante — peau romantique en verre rose'
     }
   }
 }

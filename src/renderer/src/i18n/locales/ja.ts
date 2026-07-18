@@ -165,6 +165,10 @@ export default {
     codex2007: {
       name: 'Codex 2007',
       description: 'クラシック QQ / XP 風スカイブルー UI、ノスタルジックなチャット雰囲気'
+    },
+    jujingyiSunsetBreeze: {
+      name: '鞠婧禕 · 落日の海風',
+      description: '夕焼けの海岸と舞うスカート — ピンクガラスのロマンチックスキン'
     }
   }
 }

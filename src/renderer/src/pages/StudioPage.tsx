@@ -14,10 +14,12 @@ import {
   displayThemeName
 } from '@shared/theme-presets'
 import themeCodex2007Preview from '../assets/previews/theme_codex_2007.jpg'
+import themeJujingyiSunsetPreview from '../assets/previews/theme_jujingyi_sunset.jpg'
 
 /** Built-in screenshot previews (key = ThemePreset.preview.image) */
 const PREVIEW_IMAGES: Record<string, string> = {
-  theme_codex_2007: themeCodex2007Preview
+  theme_codex_2007: themeCodex2007Preview,
+  theme_jujingyi_sunset: themeJujingyiSunsetPreview
 }
 
 const container = {

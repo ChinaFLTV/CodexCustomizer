@@ -165,6 +165,10 @@ export default {
     codex2007: {
       name: 'Codex 2007',
       description: 'Klassisches QQ-/XP-Himmelblau — nostalgische Chat-Atmosphäre'
+    },
+    jujingyiSunsetBreeze: {
+      name: 'Ju Jingyi · Sonnenuntergang-Meeresbrise',
+      description: 'Küstenlicht und fließendes Kleid — romantische Roséglas-Haut'
     }
   }
 }

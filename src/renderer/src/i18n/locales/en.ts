@@ -165,6 +165,10 @@ export default {
     codex2007: {
       name: 'Codex 2007',
       description: 'QQ2007 / XP Luna blue-white chrome — gradient title bar & classic chat UI'
+    },
+    jujingyiSunsetBreeze: {
+      name: 'Ju Jingyi · Sunset Sea Breeze',
+      description: 'Coastal sunset art · full frosted Gaussian-blur glass cards · elegant atmosphere'
     }
   }
 }

@@ -1,4 +1,5 @@
 import type { ThemePreset } from './types'
+import { buildJujingyiSunsetCss } from './theme-assets/jujingyi-sunset-css'
 
 /**
  * Built-in Codex theme combinations.
@@ -2557,6 +2558,38 @@ html.codex-customizer .thread-scroll-container [class*="bg-token-dropdown-backgr
 `
 
 
+  },
+  {
+    // 鞠婧祎 · 落日海风 — premium frosted glass + beach-sunset portrait
+    id: 'jujingyi-sunset-breeze',
+    nameKey: 'presets.jujingyiSunsetBreeze.name',
+    descriptionKey: 'presets.jujingyiSunsetBreeze.description',
+    preview: {
+      primary: '#E87A8A',
+      secondary: '#F3C4B0',
+      background: '#FFF5F7',
+      // Resolved in StudioPage via assets/previews/theme_jujingyi_sunset.jpg
+      image: 'theme_jujingyi_sunset'
+    },
+    tokens: {
+      accent: '#E88A98',
+      accentSecondary: '#F0A8B2',
+      bgBase: '#FFF3F5',
+      bgElevated: 'rgba(255, 252, 253, 0.55)',
+      bgGlass: 'rgba(255, 248, 250, 0.42)',
+      textPrimary: '#3F3337',
+      textSecondary: 'rgba(63, 51, 55, 0.68)',
+      border: 'rgba(255, 255, 255, 0.45)',
+      success: '#5DB88A',
+      warning: '#E0A04A',
+      danger: '#E05A6A',
+      fontFamily:
+        '"SF Pro Display", "PingFang SC", "Hiragino Sans", "Segoe UI", system-ui, sans-serif',
+      radius: 18,
+      blur: 36,
+      saturation: 1.45
+    },
+    customCss: buildJujingyiSunsetCss()
   }
 
 ]

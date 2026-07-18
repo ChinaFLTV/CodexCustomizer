@@ -165,6 +165,10 @@ export default {
     codex2007: {
       name: 'Codex 2007',
       description: 'QQ2007 / XP Luna 蓝白铬合金，标题栏渐变与经典聊天气质'
+    },
+    jujingyiSunsetBreeze: {
+      name: '鞠婧祎 · 落日海风',
+      description: '落日海岸底图 · 全卡片高斯模糊磨砂玻璃 · 高雅大气氛围感'
     }
   }
 }
