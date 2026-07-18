@@ -13,7 +13,7 @@ export default {
   status: {
     stopped: '已停止',
     starting: '启动中…',
-    running: '运行中',
+    running: '已运行（无调试）',
     injecting: '注入主题…',
     connected: '已连接',
     error: '出错',
@@ -29,7 +29,7 @@ export default {
     preview: '预览注入',
     reset: '还原默认',
     detect: '自动检测',
-    browse: '浏览…',
+    browse: '浏览',
     save: '保存',
     retry: '重试',
     refresh: '刷新状态'
@@ -113,7 +113,13 @@ export default {
       'Codex 本身基于 Electron。本应用通过 Chrome DevTools Protocol (CDP) 以远程调试端口启动 Codex，随后向其渲染进程注入 CSS 变量与玻璃态样式，实现非侵入式主题定制。',
     stack: '技术栈',
     stackBody: 'Electron · React · TypeScript · Framer Motion · chrome-remote-interface',
-    note: '提示：请始终通过本应用启动 Codex，否则可能无法附加 CDP。'
+    note: '提示：请始终通过本应用启动 Codex，否则可能无法附加 CDP。',
+    flowTitle: 'CDP 注入流程',
+    flow1: '以 --remote-debugging-port 启动 Codex / ChatGPT',
+    flow2: '通过 Chrome DevTools Protocol 建立连接',
+    flow3: '枚举 page / webview 调试目标',
+    flow4: '注入 CSS 变量与毛玻璃样式规则',
+    flow5: '无需重启即可热切换主题预设'
   },
   toast: {
     started: 'Codex 已启动',

@@ -17,9 +17,9 @@ export function ControlPage() {
   const [pathDraft, setPathDraft] = useState(settings.codexPath || '')
   const [portDraft, setPortDraft] = useState(String(settings.debuggingPort))
 
-  const isLive =
+  // Stop only when CDP session is live / starting — not when product runs without CDP
+  const showStop =
     codex.status === 'connected' ||
-    codex.status === 'running' ||
     codex.status === 'injecting' ||
     codex.status === 'starting'
 
@@ -118,7 +118,7 @@ export function ControlPage() {
       {codex.lastError && <div className="error-banner">{codex.lastError}</div>}
 
       <div className="studio-actions">
-        {!isLive ? (
+        {!showStop ? (
           <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void handleStart()}>
             <IconPlay width={16} height={16} />
             {t('actions.start')}

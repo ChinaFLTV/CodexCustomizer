@@ -113,7 +113,13 @@ export default {
       'Codex は Electron アプリです。本ツールは CDP リモートデバッグポート付きで Codex を起動し、レンダラーへ CSS 変数とフロストガラス風スタイルを注入します。非侵襲的なテーマカスタマイズです。',
     stack: '技術スタック',
     stackBody: 'Electron · React · TypeScript · Framer Motion · chrome-remote-interface',
-    note: 'ヒント: 常に本アプリから Codex を起動してください。そうしないと CDP が使えない場合があります。'
+    note: 'ヒント: 常に本アプリから Codex を起動してください。そうしないと CDP が使えない場合があります。',
+    flowTitle: 'CDP 注入フロー',
+    flow1: '--remote-debugging-port 付きで Codex を起動',
+    flow2: 'Chrome DevTools Protocol で接続',
+    flow3: 'page / webview ターゲットを列挙',
+    flow4: 'CSS 変数とすりガラス規則を注入',
+    flow5: '再起動なしでプリセットをホットスワップ'
   },
   toast: {
     started: 'Codex を起動しました',

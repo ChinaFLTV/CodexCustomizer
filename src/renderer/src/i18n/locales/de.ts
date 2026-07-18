@@ -113,7 +113,13 @@ export default {
       'Codex ist eine Electron-App. Dieses Tool startet sie mit einem CDP-Remote-Debugging-Port und injiziert CSS-Variablen sowie Milchglas-Styles in den Renderer — nicht-invasive Themenanpassung.',
     stack: 'Stack',
     stackBody: 'Electron · React · TypeScript · Framer Motion · chrome-remote-interface',
-    note: 'Tipp: Starten Sie Codex immer aus dieser App, sonst ist CDP möglicherweise nicht verfügbar.'
+    note: 'Tipp: Starten Sie Codex immer aus dieser App, sonst ist CDP möglicherweise nicht verfügbar.',
+    flowTitle: 'CDP-Injektionsablauf',
+    flow1: 'Codex mit --remote-debugging-port starten',
+    flow2: 'Über Chrome DevTools Protocol verbinden',
+    flow3: 'Page-/Webview-Ziele auflisten',
+    flow4: 'CSS-Variablen und Milchglas-Regeln injizieren',
+    flow5: 'Presets ohne Neustart hot-swappen'
   },
   toast: {
     started: 'Codex gestartet',

@@ -86,9 +86,7 @@ export function EditorPage() {
   }, [selected?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const canInject =
-    codex.status === 'connected' ||
-    codex.status === 'running' ||
-    codex.status === 'injecting'
+    codex.status === 'connected' || codex.status === 'injecting'
 
   const editable = isEditable(selected)
 

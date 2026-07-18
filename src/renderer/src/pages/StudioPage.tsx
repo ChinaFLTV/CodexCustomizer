@@ -50,14 +50,14 @@ export function StudioPage() {
     [themes, selectedPresetId]
   )
 
+  // Inject only when CDP is actually attached
   const canInject =
-    codex.status === 'connected' ||
-    codex.status === 'running' ||
-    codex.status === 'injecting'
+    codex.status === 'connected' || codex.status === 'injecting'
 
-  const isLive =
+  // Show Stop only for a live managed session (not "running without CDP")
+  // status===running means product detected but no debug port → Start relaunches
+  const showStop =
     codex.status === 'connected' ||
-    codex.status === 'running' ||
     codex.status === 'injecting' ||
     codex.status === 'starting'
 
@@ -179,7 +179,7 @@ export function StudioPage() {
       {codex.lastError && <div className="error-banner">{codex.lastError}</div>}
 
       <div className="studio-actions">
-        {!isLive ? (
+        {!showStop ? (
           <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void handleStart()}>
             <IconPlay width={16} height={16} />
             {t('actions.start')}

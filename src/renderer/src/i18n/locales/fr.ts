@@ -113,7 +113,13 @@ export default {
       'Codex est une application Electron. Cet outil le lance avec un port de débogage distant CDP, puis injecte des variables CSS et un style verre dépoli dans son renderer — personnalisation non invasive.',
     stack: 'Stack',
     stackBody: 'Electron · React · TypeScript · Framer Motion · chrome-remote-interface',
-    note: 'Astuce : démarrez toujours Codex depuis cette application, sinon le CDP peut être indisponible.'
+    note: 'Astuce : démarrez toujours Codex depuis cette application, sinon le CDP peut être indisponible.',
+    flowTitle: "Flux d'injection CDP",
+    flow1: 'Lancer Codex avec --remote-debugging-port',
+    flow2: 'Se connecter via Chrome DevTools Protocol',
+    flow3: 'Énumérer les cibles page / webview',
+    flow4: 'Injecter les variables CSS et le verre dépoli',
+    flow5: 'Changer de préréglage à chaud sans redémarrer Codex'
   },
   toast: {
     started: 'Codex démarré',

@@ -13,7 +13,11 @@ export interface RunningAppInfo {
 }
 
 /**
- * Detect already-running ChatGPT / Codex desktop processes.
+ * Detect already-running ChatGPT / Codex *desktop product* processes.
+ *
+ * Important: do NOT treat this customizer as Codex. Paths like
+ * `.../CodexCustomizer/...` match naive `pgrep -f Codex` and caused false
+ * "running / 停止 Codex" when only the customizer was open.
  */
 export async function findRunningCodexApps(): Promise<RunningAppInfo> {
   const os = platform()
@@ -21,8 +25,17 @@ export async function findRunningCodexApps(): Promise<RunningAppInfo> {
   const debugPorts = new Set<number>()
   const names = new Set<string>()
 
+  const accept = (pid: number, cmd: string) => {
+    if (!Number.isFinite(pid) || pid <= 0) return
+    if (!cmd || isOwnCustomizerCommand(cmd)) return
+    if (!isCodexProductCommand(cmd)) return
+    pids.add(pid)
+    names.add(guessAppName(cmd))
+    const port = extractDebugPort(cmd)
+    if (port) debugPorts.add(port)
+  }
+
   if (os === 'darwin' || os === 'linux') {
-    // Broad process list — filter by known product names / paths
     try {
       const { stdout } = await execFileAsync(
         'ps',
@@ -32,29 +45,32 @@ export async function findRunningCodexApps(): Promise<RunningAppInfo> {
       for (const line of stdout.split(/\r?\n/)) {
         const m = line.trim().match(/^(\d+)\s+(.+)$/)
         if (!m) continue
-        const pid = Number(m[1])
-        const cmd = m[2]
-        if (!isCodexRelatedCommand(cmd)) continue
-        // Skip our customizer / helpers
-        if (/codex-customizer|CodexCustomizer|electron-vite/i.test(cmd)) continue
-        pids.add(pid)
-        names.add(guessAppName(cmd))
-        const port = extractDebugPort(cmd)
-        if (port) debugPorts.add(port)
+        accept(Number(m[1]), m[2])
       }
     } catch {
       // ignore
     }
 
-    // pgrep fallbacks
-    for (const pattern of ['ChatGPT', 'Codex', 'com.openai.codex']) {
+    // pgrep only as candidate source — always re-validate full command line
+    for (const pattern of [
+      'ChatGPT.app',
+      'Codex.app',
+      'com.openai.codex',
+      'MacOS/ChatGPT',
+      'MacOS/Codex',
+      'ChatGPT.exe',
+      'Codex.exe'
+    ]) {
       try {
         const { stdout } = await execFileAsync('pgrep', ['-f', pattern], {
           timeout: 3000
         })
         for (const s of stdout.split(/\r?\n/)) {
           const pid = Number(s.trim())
-          if (Number.isFinite(pid) && pid > 0) pids.add(pid)
+          if (!Number.isFinite(pid) || pid <= 0) continue
+          if (pids.has(pid)) continue
+          const cmd = await commandForPid(pid)
+          if (cmd) accept(pid, cmd)
         }
       } catch {
         // no matches
@@ -67,7 +83,12 @@ export async function findRunningCodexApps(): Promise<RunningAppInfo> {
         [
           '-NoProfile',
           '-Command',
-          `Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'ChatGPT|Codex' -or $_.CommandLine -match 'openai.codex|ChatGPT|Codex' } | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`
+          `Get-CimInstance Win32_Process | Where-Object {
+            $_.Name -match '^(ChatGPT|Codex)\\.exe$' -or
+            ($_.CommandLine -and (
+              $_.CommandLine -match 'ChatGPT\\.app|Codex\\.app|openai\\.codex|\\\\ChatGPT\\.exe|\\\\Codex\\.exe'
+            ))
+          } | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`
         ],
         { timeout: 8000, windowsHide: true, maxBuffer: 4 * 1024 * 1024 }
       )
@@ -79,10 +100,8 @@ export async function findRunningCodexApps(): Promise<RunningAppInfo> {
         const list = Array.isArray(data) ? data : [data]
         for (const row of list) {
           if (!row?.ProcessId) continue
-          pids.add(Number(row.ProcessId))
-          if (row.Name) names.add(row.Name)
-          const port = extractDebugPort(row.CommandLine || '')
-          if (port) debugPorts.add(port)
+          const cmd = `${row.Name || ''} ${row.CommandLine || ''}`
+          accept(Number(row.ProcessId), cmd)
         }
       }
     } catch {
@@ -97,17 +116,66 @@ export async function findRunningCodexApps(): Promise<RunningAppInfo> {
   }
 }
 
-function isCodexRelatedCommand(cmd: string): boolean {
+/** This customizer / its Electron helpers / build tooling — never "Codex product". */
+export function isOwnCustomizerCommand(cmd: string): boolean {
   const c = cmd.toLowerCase()
-  // Prefer app bundle / product binaries; avoid generic "codex" CLI noise when possible
-  if (c.includes('chatgpt.app') || c.includes('/chatgpt ')) return true
-  if (c.includes('codex.app') || c.includes('openai.codex')) return true
-  if (c.includes('chatgpt.exe') || c.includes('codex.exe')) return true
-  // Electron helper of the product
-  if (c.includes('chatgpt helper') || c.includes('codex helper')) return true
-  // Main process often ends with MacOS/ChatGPT
-  if (/contents\/macos\/chatgpt/i.test(cmd)) return true
-  if (/contents\/macos\/codex/i.test(cmd)) return true
+  if (c.includes('codexcustomizer')) return true
+  if (c.includes('codex-customizer')) return true
+  if (c.includes('codex_customizer')) return true
+  if (c.includes('electron-vite')) return true
+  // Electron userData for this app
+  if (c.includes('application support/codex-customizer')) return true
+  if (c.includes('appdata\\roaming\\codex-customizer')) return true
+  if (c.includes('appdata\\local\\codex-customizer')) return true
+  // Packaged customizer binary name
+  if (/\/codex customizer\.app\//i.test(cmd)) return true
+  if (/\\codex customizer\\/i.test(cmd)) return true
+  return false
+}
+
+/**
+ * True only for OpenAI ChatGPT / Codex *desktop product* processes.
+ * Intentionally strict: "Codex" substring alone is NOT enough.
+ */
+export function isCodexProductCommand(cmd: string): boolean {
+  if (!cmd || isOwnCustomizerCommand(cmd)) return false
+
+  // Explicit product bundles / installers
+  if (/ChatGPT\.app\//i.test(cmd)) return true
+  if (/Codex\.app\//i.test(cmd)) return true
+  if (/com\.openai\.codex/i.test(cmd)) return true
+  if (/[/\\]ChatGPT\.exe\b/i.test(cmd)) return true
+  if (/[/\\]Codex\.exe\b/i.test(cmd)) return true
+
+  // Main binary path inside app bundle
+  if (/Contents\/MacOS\/ChatGPT\b/i.test(cmd)) return true
+  if (/Contents\/MacOS\/Codex\b/i.test(cmd)) return true
+
+  // Helpers only if clearly under product framework (not our Electron helpers)
+  if (
+    /ChatGPT\.app\/.*Helper/i.test(cmd) ||
+    /Codex\.app\/.*Helper/i.test(cmd) ||
+    /Codex Framework\.framework/i.test(cmd)
+  ) {
+    return true
+  }
+
+  // OpenAI product user-data dir (not our codex-customizer dir)
+  if (
+    /Application Support\/(?:Codex|ChatGPT)\b/i.test(cmd) &&
+    !/codex-customizer/i.test(cmd) &&
+    (/ChatGPT|Codex Framework|openai/i.test(cmd) ||
+      /Contents\/MacOS\//i.test(cmd))
+  ) {
+    // Require product binary marker to avoid random tools writing that folder
+    if (
+      /MacOS\/(?:ChatGPT|Codex)\b/i.test(cmd) ||
+      /ChatGPT\.app|Codex\.app|Codex Framework/i.test(cmd)
+    ) {
+      return true
+    }
+  }
+
   return false
 }
 
@@ -125,8 +193,24 @@ function extractDebugPort(cmd: string): number | null {
   return null
 }
 
+async function commandForPid(pid: number): Promise<string | null> {
+  try {
+    const { stdout } = await execFileAsync(
+      'ps',
+      ['-p', String(pid), '-o', 'command='],
+      { timeout: 2000 }
+    )
+    const cmd = stdout.trim()
+    return cmd || null
+  } catch {
+    return null
+  }
+}
+
 /**
  * Probe a list of ports for a live CDP endpoint.
+ * Only return ports that look like the OpenAI product when processes are known;
+ * bare port reachability alone can false-positive on leftover listeners.
  */
 export async function findOpenCdpPort(
   preferred: number,
@@ -140,7 +224,6 @@ export async function findOpenCdpPort(
   push(preferred)
   for (const p of extra) push(p)
 
-  // Common defaults used by tooling / previous sessions
   for (const p of [
     preferred,
     9222,
@@ -155,16 +238,40 @@ export async function findOpenCdpPort(
     push(p)
   }
 
-  // Parallel-ish batches to keep it snappy
+  const running = await findRunningCodexApps()
+  const productAlive = running.pids.length > 0
+
   const batchSize = 6
   for (let i = 0; i < candidates.length; i += batchSize) {
     const batch = candidates.slice(i, i + batchSize)
     const results = await Promise.all(
-      batch.map(async (port) => ((await isCdpReachable(port)) ? port : null))
+      batch.map(async (port) => ((await isCdpReachable(port)) ? port : null)
+      )
     )
     const hit = results.find((p) => p != null)
-    if (hit != null) return hit
+    if (hit == null) continue
+
+    // If we know product processes, accept any open CDP (port may be on renderer).
+    // If NO product process is alive, do not claim "connected" just because
+    // some random service answers on a common debug port.
+    if (productAlive || running.debugPorts.includes(hit) || extra.includes(hit)) {
+      return hit
+    }
+    // Prefer preferred port only when product cmdline advertised it
+    if (hit === preferred && running.debugPorts.includes(preferred)) {
+      return hit
+    }
   }
+
+  // Last resort: if product is running and preferred CDP is up, use it
+  if (productAlive && (await isCdpReachable(preferred))) {
+    return preferred
+  }
+  // If product running and any of its cmdline ports is up
+  for (const p of running.debugPorts) {
+    if (await isCdpReachable(p)) return p
+  }
+
   return null
 }
 
@@ -190,19 +297,27 @@ export async function quitRunningCodexApps(
         // app may not be running under that name
       }
     }
-    // Force leftovers that didn't quit
     await sleep(600)
-    for (const name of ['ChatGPT', 'Codex']) {
+    // Only kill verified product PIDs — never killall by bare name if unsure
+    for (const pid of running.pids) {
       try {
-        await execFileAsync('killall', [name], { timeout: 3000 })
+        process.kill(pid, 'SIGTERM')
       } catch {
-        // none
+        // ignore
+      }
+    }
+    await sleep(400)
+    for (const pid of running.pids) {
+      try {
+        process.kill(pid, 'SIGKILL')
+      } catch {
+        // ignore
       }
     }
   } else if (os === 'win32') {
-    for (const image of ['ChatGPT.exe', 'Codex.exe']) {
+    for (const pid of running.pids) {
       try {
-        await execFileAsync('taskkill', ['/IM', image, '/F'], {
+        await execFileAsync('taskkill', ['/PID', String(pid), '/T', '/F'], {
           timeout: 5000,
           windowsHide: true
         })
@@ -220,15 +335,10 @@ export async function quitRunningCodexApps(
     }
   }
 
-  // Wait until processes are mostly gone
   const deadline = Date.now() + 8000
   while (Date.now() < deadline) {
     const still = await findRunningCodexApps()
-    // helpers may linger briefly; main MacOS binary is enough signal
-    const mainAlive = still.pids.length > 0 && still.names.length > 0
-    if (!mainAlive || still.pids.length === 0) break
-    // If only helpers without ChatGPT name, break
-    if (!still.names.some((n) => /ChatGPT|Codex/i.test(n))) break
+    if (still.pids.length === 0) break
     await sleep(350)
   }
   await sleep(400)

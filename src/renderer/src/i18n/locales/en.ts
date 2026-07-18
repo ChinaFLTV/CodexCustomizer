@@ -13,7 +13,7 @@ export default {
   status: {
     stopped: 'Stopped',
     starting: 'Starting…',
-    running: 'Running',
+    running: 'Running (no debug)',
     injecting: 'Injecting…',
     connected: 'Connected',
     error: 'Error',
@@ -113,7 +113,13 @@ export default {
       'Codex is an Electron app. This tool launches it with a Chrome DevTools Protocol (CDP) remote-debugging port, then injects CSS variables and frosted-glass styles into its renderer — non-invasive theme customization.',
     stack: 'Stack',
     stackBody: 'Electron · React · TypeScript · Framer Motion · chrome-remote-interface',
-    note: 'Tip: always start Codex from this app, otherwise CDP may be unavailable.'
+    note: 'Tip: always start Codex from this app, otherwise CDP may be unavailable.',
+    flowTitle: 'CDP injection flow',
+    flow1: 'Launch Codex with --remote-debugging-port',
+    flow2: 'Connect via Chrome DevTools Protocol',
+    flow3: 'Enumerate page / webview targets',
+    flow4: 'Inject CSS variables + frosted-glass rules',
+    flow5: 'Hot-swap presets without restarting Codex'
   },
   toast: {
     started: 'Codex started',

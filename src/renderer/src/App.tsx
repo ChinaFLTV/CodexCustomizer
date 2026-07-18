@@ -71,11 +71,12 @@ export default function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={page}
-              style={{ height: '100%', minHeight: 0 }}
-              initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
-              transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+              className="page-shell"
+              /* Avoid filter:blur on scroll ancestors — WebKit scrollbar thumb desyncs / jumps */
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.85 }}
             >
               {page === 'studio' && <StudioPage />}
               {page === 'editor' && <EditorPage />}

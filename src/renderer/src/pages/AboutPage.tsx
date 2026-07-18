@@ -35,13 +35,22 @@ export function AboutPage() {
             'linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--accent-2) 14%, transparent))'
         }}
       >
-        <h3>CDP Injection Flow</h3>
-        <ol style={{ margin: '10px 0 0', paddingLeft: 18, color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: 13 }}>
-          <li>Launch Codex with <code>--remote-debugging-port</code></li>
-          <li>Connect via Chrome DevTools Protocol</li>
-          <li>Enumerate page / webview targets</li>
-          <li>Inject CSS variables + frosted-glass rules</li>
-          <li>Hot-swap presets without restarting Codex</li>
+        <h3>{t('about.flowTitle')}</h3>
+        <ol
+          className="about-flow-list"
+          style={{
+            margin: '10px 0 0',
+            paddingLeft: 18,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.7,
+            fontSize: 13
+          }}
+        >
+          <li>{t('about.flow1')}</li>
+          <li>{t('about.flow2')}</li>
+          <li>{t('about.flow3')}</li>
+          <li>{t('about.flow4')}</li>
+          <li>{t('about.flow5')}</li>
         </ol>
       </div>
     </div>

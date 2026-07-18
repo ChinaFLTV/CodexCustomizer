@@ -217,12 +217,56 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  flex: 1;
+}
+
+/* Page transition shell — must NOT use filter:blur (desyncs scrollbar thumb) */
+.page-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
 }
 
 .panel-scroll {
-  overflow: auto;
-  padding: 22px 24px 28px;
+  flex: 1 1 auto;
+  min-height: 0;
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+  padding: 22px 24px 28px;
+  /* Native scroll; avoid scroll-behavior:smooth on the container (feels laggy with wheel) */
+  scroll-behavior: auto;
+}
+
+/* Elegant, continuously tracking scrollbar */
+.panel-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  /* Smooth visual feedback without jumping the thumb geometry */
+  transition: background-color 0.2s ease;
+}
+.panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 52%, transparent);
+  background-clip: padding-box;
+}
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
 }
 
 .page-header {
@@ -365,6 +409,11 @@
   font-size: 13px;
   font-weight: 600;
   border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
   transition:
     transform 0.28s var(--spring),
     background 0.2s,
@@ -428,6 +477,8 @@
   padding: 7px 12px;
   font-size: 12px;
   border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .form-grid {
@@ -453,7 +504,23 @@
 
 .input-row {
   display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
   gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.input-row .input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.input-row .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .input,
