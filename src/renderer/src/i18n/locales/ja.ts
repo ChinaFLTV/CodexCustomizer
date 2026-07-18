@@ -161,6 +161,10 @@ export default {
     oceanDepth: {
       name: 'オーシャンデプス',
       description: '深いシアンの海、集中のためのブルー'
+    },
+    codex2007: {
+      name: 'Codex 2007',
+      description: 'クラシック QQ / XP 風スカイブルー UI、ノスタルジックなチャット雰囲気'
     }
   }
 }

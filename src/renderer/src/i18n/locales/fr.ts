@@ -161,6 +161,10 @@ export default {
     oceanDepth: {
       name: 'Profondeurs océanes',
       description: 'Bleus abyssaux cyan pour un travail concentré'
+    },
+    codex2007: {
+      name: 'Codex 2007',
+      description: 'Chrome bleu ciel style QQ / Windows XP — nostalgie chat 2000s'
     }
   }
 }

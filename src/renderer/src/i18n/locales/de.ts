@@ -161,6 +161,10 @@ export default {
     oceanDepth: {
       name: 'Ozean-Tiefe',
       description: 'Cyan-abyssale Blautöne für fokussierte Arbeit'
+    },
+    codex2007: {
+      name: 'Codex 2007',
+      description: 'Klassisches QQ-/XP-Himmelblau — nostalgische Chat-Atmosphäre'
     }
   }
 }

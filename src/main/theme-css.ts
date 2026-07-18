@@ -19,8 +19,16 @@ function isLight(bg: string): boolean {
 }
 
 function solidElevated(tokens: ThemeTokens): string {
-  const e = tokens.bgElevated
-  if (e.startsWith('#') || /^rgb\(/i.test(e)) return e
+  const e = tokens.bgElevated.trim()
+  // Keep explicit solid colors (hex / rgb / rgba / hsl) — don't wash them into bgBase
+  if (
+    e.startsWith('#') ||
+    /^rgba?\(/i.test(e) ||
+    /^hsla?\(/i.test(e) ||
+    /^color\(/i.test(e)
+  ) {
+    return e
+  }
   return `color-mix(in srgb, ${tokens.bgBase} 82%, ${tokens.accent} 10%)`
 }
 
@@ -620,11 +628,16 @@ html.${ROOT} main.main-surface {
   color: var(--cc-text-primary) !important;
 }
 
-html.${ROOT} header.app-header-tint,
-html.${ROOT} main.main-surface > header {
+/* Keep header specificity low so preset customCss can fully repaint caption chrome */
+html.${ROOT} header.app-header-tint {
   background: color-mix(in srgb, ${p.base} 94%, transparent) !important;
   border-bottom-color: ${p.border} !important;
   backdrop-filter: none !important;
+  color: var(--cc-text-primary) !important;
+}
+html.${ROOT} main.main-surface > header:not(.app-header-tint) {
+  background: color-mix(in srgb, ${p.base} 94%, transparent) !important;
+  border-bottom-color: ${p.border} !important;
   color: var(--cc-text-primary) !important;
 }
 

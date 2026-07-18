@@ -161,6 +161,10 @@ export default {
     oceanDepth: {
       name: '深海',
       description: '青蓝深渊与流光，冷静专注'
+    },
+    codex2007: {
+      name: 'Codex 2007',
+      description: 'QQ2007 / XP Luna 蓝白铬合金，标题栏渐变与经典聊天气质'
     }
   }
 }

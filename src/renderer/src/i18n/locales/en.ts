@@ -161,6 +161,10 @@ export default {
     oceanDepth: {
       name: 'Ocean Depth',
       description: 'Cyan abyssal blues for focused deep work'
+    },
+    codex2007: {
+      name: 'Codex 2007',
+      description: 'QQ2007 / XP Luna blue-white chrome — gradient title bar & classic chat UI'
     }
   }
 }

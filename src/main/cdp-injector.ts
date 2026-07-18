@@ -130,6 +130,16 @@ function buildInjectionScript(preset: ThemePreset, globalCss = ''): string {
           );
           icons.forEach((svg) => {
             if (!svg) return;
+            // Luna / XP caption: keep white glyphs — don't remint to muted icon color
+            if (svg.closest('header.app-header-tint, .app-header-tint')) {
+              svg.style.setProperty('color', '#FFFFFF', 'important');
+              svg.querySelectorAll('path, circle, rect, line, polyline, polygon').forEach((el) => {
+                const fill = el.getAttribute('fill');
+                if (fill !== 'none') el.setAttribute('fill', 'currentColor');
+              });
+              svg.dataset.ccIcon = '1';
+              return;
+            }
             // Callouts A+: icons use theme accent (not danger/warning red-yellow)
             const inCallout = svg.closest(
               '[class*="validation-error"], [class*="bg-token-input-validation-error"], [class*="text-token-error"], [class*="validation-warning"], [class*="bg-token-input-validation-warning"], [class*="border-token-editor-warning"], [class*="validation-info"]'
@@ -339,10 +349,19 @@ function buildInjectionScript(preset: ThemePreset, globalCss = ''): string {
             if (el.closest('[class*="validation-error"], [class*="validation-warning"], [class*="validation-info"], [class*="bg-token-input-validation"], [class*="text-token-error"], [class*="text-token-charts-red"], [class*="bg-token-charts-red"], [class*="border-token-editor-warning"]')) {
               return;
             }
+            // Luna caption uses intentional white text — remint would paint it dark
+            if (el.closest('header.app-header-tint, .app-header-tint')) {
+              // Silver XP chips inside caption keep dark text
+              if (el.closest('button, [class*="border"]')) return;
+              el.style.setProperty('color', '#FFFFFF', 'important');
+              el.style.setProperty('-webkit-text-fill-color', '#FFFFFF', 'important');
+              el.dataset.ccText = '1';
+              return;
+            }
             const cls = String(el.className || '');
             if (skipRe.test(cls)) return;
             const prev = el.style.getPropertyValue('color');
-            if (el.dataset.ccText === '1' && (prev === 'var(--cc-text-primary)' || prev === 'var(--cc-text-secondary)')) return;
+            if (el.dataset.ccText === '1' && (prev === 'var(--cc-text-primary)' || prev === 'var(--cc-text-secondary)' || prev === '#FFFFFF' || prev === 'rgb(255, 255, 255)')) return;
             const cs = window.getComputedStyle(el);
             if (isNeutral(cs.color) || isNeutral(cs.webkitTextFillColor)) {
               const fs = parseFloat(cs.fontSize) || 14;
@@ -362,6 +381,47 @@ function buildInjectionScript(preset: ThemePreset, globalCss = ''): string {
     };
 
     const result = apply();
+
+    /*
+     * Decouple right-rail toggle from 置顶摘要:
+     * Native Codex auto-shows origin-top-right when the tools rail closes.
+     * User expects rightmost header button = rail only; left button = summary.
+     * We track explicit user opens via 切换置顶摘要 and set html.cc-summary-open
+     * for the theme CSS gate.
+     */
+    try {
+      const setSummaryOpen = (open) => {
+        window.__CODEX_CUSTOMIZER_SUMMARY_OPEN__ = !!open;
+        const root = document.documentElement;
+        if (open) root.classList.add('cc-summary-open');
+        else root.classList.remove('cc-summary-open');
+      };
+
+      // Replace prior handler so re-inject never double-toggles
+      if (window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__) {
+        document.removeEventListener('click', window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__, true);
+      }
+
+      window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__ = (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('button') : null;
+        if (!btn || !btn.closest('header.app-header-tint, header, .app-header-tint')) return;
+        const label = btn.getAttribute('aria-label') || btn.getAttribute('title') || '';
+        // Only the pin control for the floating env panel (rail-closed mode).
+        // "切换摘要" (no 置顶) opens a Radix popover while the tools rail is open — leave it alone.
+        if (!/置顶摘要/.test(label)) return;
+        setSummaryOpen(!window.__CODEX_CUSTOMIZER_SUMMARY_OPEN__);
+      };
+
+      document.addEventListener('click', window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__, true);
+      window.__CODEX_CUSTOMIZER_SUMMARY_BOUND__ = true;
+
+      // Preserve pin across re-inject; default closed on first bind
+      if (typeof window.__CODEX_CUSTOMIZER_SUMMARY_OPEN__ !== 'boolean') {
+        setSummaryOpen(false);
+      } else {
+        setSummaryOpen(window.__CODEX_CUSTOMIZER_SUMMARY_OPEN__);
+      }
+    } catch (_) {}
 
     try {
       if (window.__CODEX_CUSTOMIZER_OBSERVER__) {
@@ -473,6 +533,15 @@ function buildResetScript(): string {
     });
     try { window.__CODEX_CUSTOMIZER_OBSERVER__?.disconnect(); } catch (_) {}
     try { if (window.__CODEX_CUSTOMIZER_TIMER__) clearInterval(window.__CODEX_CUSTOMIZER_TIMER__); } catch (_) {}
+    try {
+      if (window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__) {
+        document.removeEventListener('click', window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__, true);
+      }
+    } catch (_) {}
+    try { document.documentElement.classList.remove('cc-summary-open'); } catch (_) {}
+    try { window.__CODEX_CUSTOMIZER_SUMMARY_OPEN__ = false; } catch (_) {}
+    try { window.__CODEX_CUSTOMIZER_SUMMARY_BOUND__ = false; } catch (_) {}
+    try { window.__CODEX_CUSTOMIZER_SUMMARY_HANDLER__ = null; } catch (_) {}
     if (window.${MARKER}) window.${MARKER}.active = false;
     return { ok: true };
   } catch (e) {
