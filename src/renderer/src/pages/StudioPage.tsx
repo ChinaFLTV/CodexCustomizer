@@ -13,6 +13,12 @@ import {
   displayThemeDescription,
   displayThemeName
 } from '@shared/theme-presets'
+import themeCodex2007Preview from '../assets/previews/theme_codex_2007.jpg'
+
+/** Built-in screenshot previews (key = ThemePreset.preview.image) */
+const PREVIEW_IMAGES: Record<string, string> = {
+  theme_codex_2007: themeCodex2007Preview
+}
 
 const container = {
   hidden: { opacity: 0 },
@@ -250,30 +256,45 @@ export function StudioPage() {
               whileTap={{ scale: 0.98 }}
             >
               <div
-                className="preset-preview"
+                className={`preset-preview${
+                  preset.preview.image && PREVIEW_IMAGES[preset.preview.image]
+                    ? ' has-image'
+                    : ''
+                }`}
                 style={{ background: preset.preview.background }}
               >
-                <span
-                  className="preset-preview-orb"
-                  style={{
-                    width: 90,
-                    height: 90,
-                    left: -10,
-                    top: -20,
-                    background: preset.preview.primary
-                  }}
-                />
-                <span
-                  className="preset-preview-orb"
-                  style={{
-                    width: 70,
-                    height: 70,
-                    right: -8,
-                    bottom: -16,
-                    background: preset.preview.secondary
-                  }}
-                />
-                <span className="preset-preview-glass" />
+                {preset.preview.image && PREVIEW_IMAGES[preset.preview.image] ? (
+                  <img
+                    className="preset-preview-image"
+                    src={PREVIEW_IMAGES[preset.preview.image]}
+                    alt=""
+                    draggable={false}
+                  />
+                ) : (
+                  <>
+                    <span
+                      className="preset-preview-orb"
+                      style={{
+                        width: 90,
+                        height: 90,
+                        left: -10,
+                        top: -20,
+                        background: preset.preview.primary
+                      }}
+                    />
+                    <span
+                      className="preset-preview-orb"
+                      style={{
+                        width: 70,
+                        height: 70,
+                        right: -8,
+                        bottom: -16,
+                        background: preset.preview.secondary
+                      }}
+                    />
+                    <span className="preset-preview-glass" />
+                  </>
+                )}
               </div>
               <h3 className="preset-name">
                 {displayThemeName(preset, t)}

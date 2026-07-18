@@ -81,7 +81,10 @@ export function sanitizePreset(raw: unknown, source: ThemePreset['source'] = 'im
       background:
         typeof preview.background === 'string'
           ? preview.background
-          : o.tokens.bgBase
+          : o.tokens.bgBase,
+      ...(typeof preview.image === 'string' && preview.image.trim()
+        ? { image: preview.image.trim() }
+        : {})
     },
     tokens: { ...o.tokens },
     customCss: typeof o.customCss === 'string' ? o.customCss : '',

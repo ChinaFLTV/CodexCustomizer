@@ -44,6 +44,11 @@ export interface ThemePreset {
     primary: string
     secondary: string
     background: string
+    /**
+     * Optional asset key for a real screenshot preview (renderer resolves via
+     * assets/previews map). Built-in example: `theme_codex_2007`.
+     */
+    image?: string
   }
   tokens: ThemeTokens
   /** Extra raw CSS appended after token variables */

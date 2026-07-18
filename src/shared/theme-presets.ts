@@ -237,7 +237,9 @@ export const THEME_PRESETS: ThemePreset[] = [
     preview: {
       primary: '#0A5ABF',
       secondary: '#5EB5F7',
-      background: '#5BA3D9'
+      background: '#5BA3D9',
+      // Resolved in StudioPage via assets/previews/theme_codex_2007.jpg
+      image: 'theme_codex_2007'
     },
     tokens: {
       accent: '#0A5ABF',
@@ -355,11 +357,16 @@ html.codex-customizer .app-header-tint {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.5),
     inset 0 -1px 0 rgba(0,30,80,0.3) !important;
-  /* fixed single row — no multi-line chaos */
+  /*
+   * Single title row, optically centered with macOS traffic lights.
+   * Native lights sit slightly above geometric mid of a 36px bar; use
+   * asymmetric vertical padding so toolbar buttons share that centerline.
+   */
   height: 36px !important;
   min-height: 36px !important;
   max-height: 36px !important;
-  padding: 0 10px 0 78px !important; /* traffic-light safe zone + room for right toggle */
+  /* L: traffic-light safe zone; B>T shifts controls up toward light centers */
+  padding: 0 10px 4px 78px !important;
   margin: 0 !important;
   display: flex !important;
   flex-direction: row !important;
@@ -368,6 +375,7 @@ html.codex-customizer .app-header-tint {
   gap: 4px !important;
   z-index: 200 !important;
   box-sizing: border-box !important;
+  line-height: 1 !important;
   /* visible so rightmost 显示/隐藏侧边栏 is not clipped */
   overflow: visible !important;
 }
@@ -393,35 +401,35 @@ html.codex-customizer header.app-header-tint > .fixed {
   position: absolute !important;
   left: -9999px !important;
 }
-/* Every direct column: one row, vertically centered, no extra left pad */
+/* Every direct column: one row, vertically centered with traffic lights */
 html.codex-customizer header.app-header-tint > * {
   background: transparent !important;
   background-image: none !important;
   height: 100% !important;
   min-height: 0 !important;
-  max-height: 36px !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
   margin: 0 !important;
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
+  line-height: 1 !important;
 }
 html.codex-customizer header.app-header-tint > * > * {
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
-  height: 100% !important;
-  max-height: 36px !important;
+  height: auto !important;
+  max-height: none !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   margin-top: 0 !important;
   margin-bottom: 0 !important;
+  line-height: 1 !important;
 }
 /* Title text white; controls handled below */
-html.codex-customizer header.app-header-tint,
 html.codex-customizer header.app-header-tint .truncate,
 html.codex-customizer header.app-header-tint span:not(button span) {
   color: #FFFFFF !important;
@@ -431,7 +439,7 @@ html.codex-customizer header.app-header-tint span:not(button span) {
   font-weight: 600 !important;
   line-height: 22px !important;
 }
-/* Uniform XP toolbar buttons — one size, one baseline */
+/* Uniform XP toolbar buttons — same vertical center as traffic lights */
 html.codex-customizer header.app-header-tint button,
 html.codex-customizer header.app-header-tint [class*="border"][class*="cursor"] {
   background: linear-gradient(180deg, #FFFFFF 0%, #E4F0FA 48%, #C8DFF3 100%) !important;
@@ -451,10 +459,11 @@ html.codex-customizer header.app-header-tint [class*="border"][class*="cursor"] 
   margin: 0 1px !important;
   font-weight: 600 !important;
   font-size: 11px !important;
-  line-height: 20px !important;
+  line-height: 1 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  align-self: center !important;
   gap: 3px !important;
   box-sizing: border-box !important;
   flex-shrink: 0 !important;
@@ -605,18 +614,66 @@ html.codex-customizer .app-shell-left-panel a {
   font-size: 12px !important;
   gap: 4px !important;
 }
-/* Section headers like XP group boxes */
-html.codex-customizer aside.app-shell-left-panel [class*="section-toggle"],
-html.codex-customizer aside.app-shell-left-panel button.group\\/section-toggle,
-html.codex-customizer .app-shell-left-panel .text-token-input-placeholder-foreground,
-html.codex-customizer aside.app-shell-left-panel .font-semibold,
-html.codex-customizer aside.app-shell-left-panel [class*="font-semibold"] {
+/*
+ * Section headers (项目 / 任务) — ONE XP strip only.
+ * Native DOM nests:
+ *   .text-token-input-placeholder-foreground   ← outer label wrapper
+ *     button.group/section-toggle              ← inner toggle
+ * Older rules painted BOTH → nested double card. Style only the outer title row.
+ */
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"],
+html.codex-customizer .app-shell-left-panel [class*="nav-section-title"] {
+  background: linear-gradient(180deg, #EAF3FC 0%, #C5DFF5 100%) !important;
+  border: 1px solid #9BC0DC !important;
+  border-left: 3px solid #0A5ABF !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 1px 0 #FFFFFF !important;
+  margin: 4px 4px 2px !important;
+  padding: 2px 4px 2px 6px !important;
+  min-height: 26px !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+}
+/* Title label text only — no second frame */
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] .text-token-input-placeholder-foreground,
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] [class*="section-toggle"],
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] button.group\\/section-toggle,
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] .font-semibold,
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] [class*="font-semibold"],
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] .font-medium {
   color: #084EA0 !important;
   -webkit-text-fill-color: #084EA0 !important;
   font-weight: 700 !important;
   font-size: 11px !important;
   letter-spacing: 0.02em !important;
-  text-transform: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 2px 4px !important;
+  border-radius: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+/* Chevrons / icons inside section title: no card chrome */
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"] svg {
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #0A5ABF !important;
+  -webkit-text-fill-color: #0A5ABF !important;
+}
+/* Fallback if a lone section-toggle is used without nav-section-title wrapper */
+html.codex-customizer aside.app-shell-left-panel button[class*="section-toggle"]:not([class*="nav-section-title"] button) {
+  color: #084EA0 !important;
+  -webkit-text-fill-color: #084EA0 !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
   background: linear-gradient(180deg, #EAF3FC 0%, #C5DFF5 100%) !important;
   border: 1px solid #9BC0DC !important;
   border-left: 3px solid #0A5ABF !important;
@@ -1217,18 +1274,18 @@ html.codex-customizer .shadow-lg {
     1px 1px 0 rgba(10, 50, 100, 0.12) !important;
 }
 
-/* ---------- Chat message cards (user + AI) ---------- */
+/* ---------- Chat message cards (user + AI) — ONE shell only, no nested frames ---------- */
 /*
- * User bubbles: bg-token-foreground/5 + max-w-[77%] + break-words
- * AI turns: often plain text-size-chat / markdown with NO bubble — must add card.
- * Escape carefully: [class*="max-w-[77%]"] is invalid CSS (] closes attribute).
+ * USER DOM (native):
+ *   .bg-token-foreground/5.max-w-[77%].break-words   ← ONLY this gets the card
+ *     .text-size-chat.relative.w-full.min-w-0         ← must stay flat (was double-carded)
+ *     button 收起
+ * AI DOM: outer markdown / text-size-chat (NOT inside user bubble) gets one card.
  */
-/* USER message bubbles */
+
+/* USER outer shell */
 html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"],
 html.codex-customizer .thread-scroll-container [class*="bg-token-foreground\\/"],
-html.codex-customizer .thread-scroll-container [class*="break-words"][class*="max-w-"],
-html.codex-customizer .thread-scroll-container [class*="max-w-\\[77"],
-html.codex-customizer .thread-scroll-container [class*="max-w-[77"],
 html.codex-customizer main.main-surface [class*="bg-token-foreground/"] {
   background-image: linear-gradient(180deg, #FFFFFF 0%, #F4F9FD 100%) !important;
   background-color: #FFFFFF !important;
@@ -1240,17 +1297,40 @@ html.codex-customizer main.main-surface [class*="bg-token-foreground/"] {
   color: #0A1E33 !important;
   -webkit-text-fill-color: #0A1E33 !important;
   padding: 8px 12px !important;
+  max-width: 77% !important;
+  box-sizing: border-box !important;
 }
 
-/* AI / assistant response cards — same 77% cap as user bubbles, left-aligned */
-html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"],
-html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"] > div,
-html.codex-customizer .thread-scroll-container [data-turn-role="assistant"],
-html.codex-customizer .thread-scroll-container article,
-html.codex-customizer .thread-scroll-container [class*="_markdownContent"],
-html.codex-customizer .thread-scroll-container [class*="markdown-content"],
-html.codex-customizer .thread-scroll-container .text-size-chat.relative.w-full.min-w-0,
-html.codex-customizer .thread-scroll-container [class*="text-size-chat"][class*="relative"][class*="w-full"][class*="min-w-0"] {
+/* Flatten EVERYTHING inside a user bubble (kills nested card on .text-size-chat) */
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] div.text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="text-size-chat"][class*="relative"][class*="w-full"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="markdown-content"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] article,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="break-words"] {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* AI outer content only — never match nodes inside a user bubble */
+html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"] > [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"] > .text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [data-turn-role="assistant"] > [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [data-turn-role="assistant"] > .text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container .group.flex.min-w-0.flex-col > [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container .group.flex.min-w-0.flex-col > .text-size-chat.relative.w-full.min-w-0 {
   max-width: 77% !important;
   width: fit-content !important;
   min-width: min(240px, 100%) !important;
@@ -1271,17 +1351,19 @@ html.codex-customizer .thread-scroll-container [class*="text-size-chat"][class*=
   box-sizing: border-box !important;
 }
 
-/* Avoid double-card: text inside an already-carded user bubble */
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat,
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="_markdown"],
-html.codex-customizer .thread-scroll-container [class*="break-words"] .text-size-chat,
-html.codex-customizer .thread-scroll-container [class*="break-words"] [class*="_markdownContent"] {
+/* Nested markdown / text inside an AI card stays flat */
+html.codex-customizer .thread-scroll-container [class*="_markdownContent"] [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [class*="_markdownContent"] .text-size-chat,
+html.codex-customizer .thread-scroll-container .text-size-chat .text-size-chat {
   background: transparent !important;
   background-image: none !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
 }
 
 /* Nested resource/file cards inside AI reply keep their own XP group-box look */
@@ -1294,7 +1376,7 @@ html.codex-customizer .thread-scroll-container [class*="elevation"] {
   box-shadow: inset 0 1px 0 #FFFFFF !important;
 }
 
-/* Paragraphs/lists inside message cards inherit dark text, no extra frames */
+/* Paragraphs/lists inside message cards — no extra frames */
 html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] p,
 html.codex-customizer .thread-scroll-container [class*="_markdownContent"] p,
 html.codex-customizer .thread-scroll-container [class*="text-size-chat"] p,
@@ -2000,12 +2082,11 @@ html.codex-customizer .thread-scroll-container .mx-auto[class*="max-w"] {
 }
 
 /* ============================================================
-   FINAL: AI + user message cards must win over all earlier rules
+   FINAL: single-shell cards only — never re-card nested text nodes
    ============================================================ */
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"],
-html.codex-customizer .thread-scroll-container [class*="break-words"][class*="overflow-hidden"],
-html.codex-customizer .thread-scroll-container [class*="break-words"][class*="px-3"],
-html.codex-customizer .thread-scroll-container [class*="break-words"][class*="py-2"] {
+
+/* USER outer shell wins */
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] {
   background-image: linear-gradient(180deg, #FFFFFF 0%, #F4F9FD 100%) !important;
   background-color: #FFFFFF !important;
   border: 1px solid #6BA3D0 !important;
@@ -2014,16 +2095,38 @@ html.codex-customizer .thread-scroll-container [class*="break-words"][class*="py
     inset 0 1px 0 #FFFFFF,
     1px 1px 2px rgba(10, 50, 100, 0.12) !important;
   padding: 8px 12px !important;
+  max-width: 77% !important;
+  box-sizing: border-box !important;
 }
 
-/* AI turn cards — match USER bubble width control (max-w 77%), left-aligned */
-html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"],
-html.codex-customizer .thread-scroll-container [data-message-author-role="system"],
-html.codex-customizer .thread-scroll-container .text-size-chat.relative.w-full.min-w-0,
-html.codex-customizer .thread-scroll-container div.text-size-chat.relative.w-full.min-w-0,
-html.codex-customizer .thread-scroll-container [class*="_markdownContent"],
-html.codex-customizer .thread-scroll-container article {
-  /* same ratio as native user bubble max-w-[77%] */
+/* CRITICAL: user bubble children must not look like a second card
+ * (was matching AI rule .text-size-chat.relative.w-full.min-w-0) */
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] div.text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat,
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="text-size-chat"][class*="relative"][class*="w-full"][class*="min-w-0"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="_markdown"],
+html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] article {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* AI: card the outer content node only (not its descendants, not user inners) */
+html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"] > [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [data-message-author-role="assistant"] > .text-size-chat.relative.w-full.min-w-0,
+html.codex-customizer .thread-scroll-container [data-message-author-role="system"] > [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container .group.flex.min-w-0.flex-col > [class*="_markdownContent"] {
   max-width: 77% !important;
   width: fit-content !important;
   min-width: min(280px, 100%) !important;
@@ -2041,18 +2144,10 @@ html.codex-customizer .thread-scroll-container article {
   margin-bottom: 10px !important;
   box-sizing: border-box !important;
 }
-/* User bubbles already have max-w-[77%]; reinforce alignment (right-ish chat feel optional) */
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"],
-html.codex-customizer .thread-scroll-container [class*="break-words"][class*="max-w-"] {
-  max-width: 77% !important;
-}
 
-/* Keep nested bits flat inside cards */
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] .text-size-chat,
-html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"] [class*="_markdown"],
-html.codex-customizer .thread-scroll-container [class*="break-words"] .text-size-chat,
-html.codex-customizer .thread-scroll-container [class*="break-words"] [class*="_markdown"],
+/* Nested bits under AI card stay flat */
 html.codex-customizer .thread-scroll-container [class*="_markdownContent"] [class*="_markdownContent"],
+html.codex-customizer .thread-scroll-container [class*="_markdownContent"] .text-size-chat,
 html.codex-customizer .thread-scroll-container article article,
 html.codex-customizer .thread-scroll-container .text-size-chat .text-size-chat {
   background: transparent !important;
@@ -2061,6 +2156,8 @@ html.codex-customizer .thread-scroll-container .text-size-chat .text-size-chat {
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
 }
 
 /* Diff / file resource cards inside AI reply — secondary XP group box */
