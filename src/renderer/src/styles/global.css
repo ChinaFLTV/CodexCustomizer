@@ -1,0 +1,156 @@
+:root {
+  color-scheme: dark;
+  --bg-base: #0a0c14;
+  --bg-elevated: rgba(22, 26, 42, 0.55);
+  --bg-glass: rgba(255, 255, 255, 0.06);
+  --bg-glass-strong: rgba(255, 255, 255, 0.1);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --text-primary: #f4f6ff;
+  --text-secondary: rgba(224, 230, 255, 0.68);
+  --text-muted: rgba(224, 230, 255, 0.42);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent: #8b9dff;
+  --accent-2: #c4a1ff;
+  --accent-soft: rgba(139, 157, 255, 0.18);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --blur: 28px;
+  --titlebar-h: 52px;
+  --sidebar-w: 228px;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font: "SF Pro Display", "Segoe UI", "PingFang SC", "Hiragino Sans",
+    "Noto Sans SC", system-ui, -apple-system, sans-serif;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --bg-base: #eef1f8;
+  --bg-elevated: rgba(255, 255, 255, 0.62);
+  --bg-glass: rgba(255, 255, 255, 0.55);
+  --bg-glass-strong: rgba(255, 255, 255, 0.78);
+  --bg-hover: rgba(15, 23, 42, 0.05);
+  --text-primary: #0f172a;
+  --text-secondary: rgba(15, 23, 42, 0.64);
+  --text-muted: rgba(15, 23, 42, 0.4);
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --accent: #5b6cff;
+  --accent-2: #9b6bff;
+  --accent-soft: rgba(91, 108, 255, 0.12);
+  --shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+body {
+  background:
+    radial-gradient(1200px 700px at 8% -10%, rgba(139, 157, 255, 0.22), transparent 55%),
+    radial-gradient(900px 600px at 95% 0%, rgba(196, 161, 255, 0.16), transparent 50%),
+    radial-gradient(800px 500px at 50% 110%, rgba(56, 189, 248, 0.1), transparent 45%),
+    var(--bg-base);
+}
+
+html[data-theme='light'] body {
+  background:
+    radial-gradient(1100px 640px at 10% -8%, rgba(91, 108, 255, 0.16), transparent 55%),
+    radial-gradient(900px 560px at 95% 5%, rgba(155, 107, 255, 0.12), transparent 50%),
+    radial-gradient(700px 420px at 40% 100%, rgba(56, 189, 248, 0.08), transparent 45%),
+    linear-gradient(180deg, #f7f8fc 0%, #e8ecf6 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* Utility */
+.drag-region {
+  -webkit-app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.glass {
+  background: var(--bg-elevated);
+  backdrop-filter: blur(var(--blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.25);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-strong {
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(calc(var(--blur) + 6px)) saturate(1.3);
+  -webkit-backdrop-filter: blur(calc(var(--blur) + 6px)) saturate(1.3);
+  border: 1px solid var(--border-strong);
+}
+
+/* Selection for editable fields */
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, white);
+  outline-offset: 2px;
+}

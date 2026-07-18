@@ -1,0 +1,15 @@
+node_modules
+dist
+out
+release
+*.log
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.local
+.env
+.env.*
+!.env.example
+tsconfig.tsbuildinfo
+*.tsbuildinfo
