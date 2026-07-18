@@ -1116,14 +1116,14 @@ html.codex-customizer [class*="text-token-muted"] {
   /* Do NOT force opacity:1 — that un-hides native .opacity-0 controls
      (e.g. 滚动到底部) and turns them into stray XP rectangles. */
 }
-/* Honor intentional hide utilities even if other rules paint the element */
-html.codex-customizer .opacity-0,
-html.codex-customizer [class~="opacity-0"] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-/* Scroll-to-bottom: native pill floats above composer; hide the broken empty shell.
- * When Codex shows it (no opacity-0), keep a compact circular control. */
+/*
+ * Do NOT force .opacity-0 { opacity:0 !important }.
+ * Native left-rail uses opacity-0 + group-hover/folder-row:opacity-100 (and
+ * focus-within) for project actions: 新建任务 / 项目操作 / 置顶 / 归档.
+ * !important locks those controls invisible forever.
+ *
+ * Only hard-hide the scroll-to-bottom control when native marks it hidden.
+ */
 html.codex-customizer button[aria-label="滚动到底部"],
 html.codex-customizer button[aria-label*="滚动到底"],
 html.codex-customizer button[aria-label*="Scroll to bottom"],
@@ -1148,6 +1148,45 @@ html.codex-customizer button[aria-label*="滚动到底"].pointer-events-none {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+/* Ensure left-rail hover/focus action chips can reappear (defensive) */
+html.codex-customizer aside.app-shell-left-panel [class*="group-hover"][class*="opacity"],
+html.codex-customizer aside.app-shell-left-panel [class*="group-hover\\/folder-row"],
+html.codex-customizer aside.app-shell-left-panel .group\\/folder-row:hover [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel .group\\/folder-row:focus-within [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:hover [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:focus-within [class*="opacity-0"] {
+  /* let native group-hover utilities control visibility; do not clamp */
+  pointer-events: auto !important;
+}
+/* When native expands hover action rail, force visible + auto width */
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:hover [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:focus-within [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="group/folder-row"]:hover [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="group/folder-row"]:focus-within [class*="opacity-0"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:hover [class*="w-0"][class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="folder-row"]:focus-within [class*="w-0"][class*="opacity-0"] {
+  width: auto !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+/* Task row hover actions (pin / archive) */
+html.codex-customizer aside.app-shell-left-panel [class*="opacity-0"][class*="group-hover:opacity-100"]:hover,
+html.codex-customizer aside.app-shell-left-panel .group:hover > [class*="opacity-0"][class*="group-hover:opacity"],
+html.codex-customizer aside.app-shell-left-panel .group:hover [class*="absolute"][class*="opacity-0"][class*="right-0"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+/* Section title actions (添加新项目 / 新建任务) on focus-within */
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"]:focus-within [class*="opacity-0"],
+html.codex-customizer aside.app-shell-left-panel [class*="nav-section-title"]:hover [class*="opacity-0"] {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 html.codex-customizer a:not([role="button"]),
 html.codex-customizer main.main-surface a {
@@ -1283,10 +1322,14 @@ html.codex-customizer .shadow-lg {
  * AI DOM: outer markdown / text-size-chat (NOT inside user bubble) gets one card.
  */
 
-/* USER outer shell */
+/* USER outer shell
+ * IMPORTANT: do NOT match composer utility bar — its class list contains
+ * a hover utility with substring bg-token-foreground/ which false-positives on
+ * [class*="bg-token-foreground/"] and was shrinking the chip strip to 77%.
+ */
 html.codex-customizer .thread-scroll-container [class*="bg-token-foreground/"],
 html.codex-customizer .thread-scroll-container [class*="bg-token-foreground\\/"],
-html.codex-customizer main.main-surface [class*="bg-token-foreground/"] {
+html.codex-customizer main.main-surface [class*="bg-token-foreground/"]:not([class*="side-bar-background"]):not([class*="homeUtilityBar"]):not([class*="_homeUtilityBar"]) {
   background-image: linear-gradient(180deg, #FFFFFF 0%, #F4F9FD 100%) !important;
   background-color: #FFFFFF !important;
   border: 1px solid #6BA3D0 !important;
@@ -1538,10 +1581,353 @@ html.codex-customizer [data-codex-composer-root] {
   box-shadow:
     inset 1px 1px 0 #FFFFFF,
     0 1px 2px rgba(10, 50, 100, 0.14) !important;
-  overflow: hidden !important;
+  /* visible so new-thread context chips (project/branch) are not clipped */
+  overflow: visible !important;
   box-sizing: border-box !important;
   height: auto !important;
   min-height: 0 !important;
+}
+
+/*
+ * New-thread context chips ABOVE the input (OpenHand-Web / 本地 / main).
+ * Native tucks them with -mb-* under the composer surface → white panel covers
+ * the bottom half of the chips. Undo tuck and give the strip its own full row.
+ */
+/* Chip strip parent wrappers: full width, flush to top of composer card */
+html.codex-customizer [data-codex-composer-root] [class*="-mb-2"],
+html.codex-customizer [data-codex-composer-root] .z-0.relative.-mb-2,
+html.codex-customizer [data-codex-composer-root] > .flex.w-full.flex-col > .z-0,
+html.codex-customizer [data-codex-composer-root] [class*="electron\\:mx"]:has([class*="side-bar-background"]),
+html.codex-customizer [data-codex-composer-root] [class*="electron:mx"]:has([class*="side-bar-background"]),
+html.codex-customizer .sticky.bottom-0 [class*="-mb-2"]:has([class*="side-bar-background"]),
+html.codex-customizer .sticky.bottom-0 .z-0.relative:has([class*="side-bar-background"]),
+html.codex-customizer [data-codex-composer-root] > .flex.w-full.flex-col {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  inset: auto !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  z-index: 5 !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  align-self: stretch !important;
+}
+/* Top chip strip (OpenHand / 本地 / main): full parent width, flush to card top.
+ * Beat main.main-surface user-bubble rule + native electron:mx / top-1 / pb-[27px].
+ * Do NOT match _homeUtilityBarOnly_* — that is a native hidden dual-label span;
+ * matching it forced display:flex and painted the white vertical bar between chips.
+ */
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="bg-token-side-bar-background"],
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"],
+html.codex-customizer [data-codex-composer-root] [class*="bg-token-side-bar-background"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"],
+html.codex-customizer .sticky.bottom-0 [class*="bg-token-side-bar-background"],
+html.codex-customizer .sticky.bottom-0 [class*="side-bar-background"] {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  align-self: stretch !important;
+  gap: 6px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  min-height: 32px !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  /* kill native electron:mx-[var(--home-composer-inline-inset)] / -mx-px */
+  margin-inline: 0 !important;
+  padding: 6px 8px !important;
+  /* kill native pt-2 pb-[27px] electron:pt-1.5 that inflate strip */
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  overflow: visible !important;
+  position: relative !important;
+  /* kill native electron:top-1 (4px gap under card top) */
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  inset: auto !important;
+  transform: none !important;
+  z-index: 6 !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(180deg, #EAF3FC 0%, #DCEBFA 100%) !important;
+  background-color: #DCEBFA !important;
+  border: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid #9BC0DC !important;
+  box-shadow: inset 0 1px 0 #FFFFFF !important;
+  border-radius: 0 !important;
+  /* kill message-card false positive */
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+/*
+ * Chip ROW (scroll area + w-max flex): keep chips in ONE horizontal line with gap.
+ * Do not force display:flex on wrappers that use display:contents.
+ */
+html.codex-customizer [data-codex-composer-root] [data-composer-utility-bar-scroll-area],
+html.codex-customizer [data-codex-composer-root] [class*="horizontal-scroll"] {
+  display: block !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  height: auto !important;
+  min-height: 28px !important;
+}
+html.codex-customizer [data-codex-composer-root] [data-composer-utility-bar-scroll-area] > div,
+html.codex-customizer [data-codex-composer-root] [class*="horizontal-scroll"] > .flex,
+html.codex-customizer [data-codex-composer-root] .flex.w-max.items-center,
+html.codex-customizer [data-codex-composer-root] [class*="w-max"][class*="items-center"] {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: max-content !important;
+  min-width: min-content !important;
+  height: auto !important;
+  min-height: 28px !important;
+  overflow: visible !important;
+}
+
+/*
+ * Project selector group: size to the chip (not min-w-0 → 22px collapse).
+ * IMPORTANT: do NOT match class*_projectClearAvailable* with [class*="projectClear"]
+ * — that substring false-positive forced the GROUP to absolute 22×22 and stacked chips.
+ */
+html.codex-customizer [data-codex-composer-root] [class*="project-selector"],
+html.codex-customizer [data-codex-composer-root] [class*="group/project-selector"],
+html.codex-customizer [data-codex-composer-root] [class*="group\\/project-selector"] {
+  display: inline-flex !important;
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/*
+ * Dual-label chips (本地):
+ *   _defaultUtilityBarOnly_  → hide long "本地模式" on home composer
+ *   _homeUtilityBarOnly_     → short "本地" (must NOT get strip chrome;
+ *     earlier matching painted the white vertical bar between chips)
+ * High specificity needed to beat native CSS-module flex/height rules.
+ */
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] [class*="defaultUtilityBarOnly"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] [class*="defaultUtilityBarOnly"],
+html.codex-customizer [data-codex-composer-root] [class*="defaultUtilityBarOnly"] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0) !important;
+}
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] [class*="homeUtilityBarOnly"],
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] [class*="_homeUtilityBarOnly"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] [class*="homeUtilityBarOnly"],
+html.codex-customizer [data-codex-composer-root] [class*="homeUtilityBarOnly"] {
+  display: inline-block !important;
+  flex: none !important;
+  flex-direction: unset !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: 16px !important;
+  max-height: 16px !important;
+  min-height: 0 !important;
+  line-height: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #0A1E33 !important;
+  -webkit-text-fill-color: #0A1E33 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  align-self: center !important;
+  z-index: auto !important;
+}
+/* Chip label wrappers: single-line CJK-safe height, no strip paint */
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] button [class*="dropdownLabel"],
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] button [class*="labelXs"],
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] button [class*="labelSm"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button [class*="dropdownLabel"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button [class*="labelXs"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button [class*="labelSm"] {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  align-self: center !important;
+  height: 16px !important;
+  max-height: 16px !important;
+  min-height: 0 !important;
+  line-height: 16px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  box-shadow: none !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #0A1E33 !important;
+  -webkit-text-fill-color: #0A1E33 !important;
+}
+
+/* Chip buttons (project / cwd / branch) — ONE solid chip, icon+label inside */
+html.codex-customizer main.main-surface [data-codex-composer-root] [class*="side-bar-background"] button:not([class*="projectClear"]):not([class*="_projectClear"]),
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button:not([class*="projectClear"]):not([class*="_projectClear"]),
+html.codex-customizer .sticky.bottom-0 [class*="side-bar-background"] button:not([class*="projectClear"]):not([class*="_projectClear"]) {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  position: relative !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+  /* clip tall dual-label spans so they cannot paint outside the chip */
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  border-radius: 2px !important;
+  box-sizing: border-box !important;
+  /* brighter than strip so chip reads as a solid rectangle */
+  background-image: linear-gradient(180deg, #FFFFFF 0%, #F7FBFF 42%, #D0E4F6 100%) !important;
+  background-color: #F7FBFF !important;
+  border: 1px solid #3D7AAD !important;
+  color: #0A1E33 !important;
+  -webkit-text-fill-color: #0A1E33 !important;
+  box-shadow: inset 0 1px 0 #FFFFFF !important;
+  text-shadow: none !important;
+  z-index: 7 !important;
+}
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button:not([class*="projectClear"]):hover {
+  background: linear-gradient(180deg, #F8FCFF 0%, #D0E8FC 100%) !important;
+  border-color: #0A5ABF !important;
+}
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button.bg-token-foreground,
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button[class*="bg-token-foreground"],
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button[aria-pressed="true"] {
+  background: linear-gradient(180deg, #5EB5F7 0%, #0A5ABF 100%) !important;
+  border: 1px solid #003C82 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+html.codex-customizer [data-codex-composer-root] [class*="side-bar-background"] button svg {
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+
+/*
+ * Clear (×) on project chip only — button class is _projectClearButton_*,
+ * NOT _projectClearAvailable_* (that is the GROUP wrapper).
+ */
+html.codex-customizer [data-codex-composer-root] button[class*="projectClearButton"],
+html.codex-customizer [data-codex-composer-root] button[class*="_projectClearButton"],
+html.codex-customizer [data-codex-composer-root] button[aria-label*="不在项目中"],
+html.codex-customizer [data-codex-composer-root] button[aria-label*="不在项目"] {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  right: auto !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  z-index: 8 !important;
+  flex: none !important;
+}
+/* Composer surface below chips must not cover them */
+html.codex-customizer [data-codex-composer-root] .relative.flex.flex-col.z-10,
+html.codex-customizer [data-codex-composer-root] .composer-surface-chrome,
+html.codex-customizer [data-codex-composer-root] > .flex.w-full.flex-col > .relative {
+  z-index: 1 !important;
+  margin-top: 0 !important;
 }
 
 /* Banner portal wrappers — collapse chrome, no extra frame */
